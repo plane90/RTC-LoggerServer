@@ -1,0 +1,68 @@
+﻿<Window x:Class="RTC_LoggerServer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RTC_LoggerServer"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="920"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        AllowsTransparency="True"
+        StateChanged="OnWindowStateChanged">
+    
+    <Window.Resources>
+        <Separator x:Key="Sperator" Grid.Column="1" VerticalAlignment="Bottom">
+            <Separator.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#171717" Offset="0.2"/>
+                    <GradientStop Color="#272727" Offset="0.5"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </LinearGradientBrush>
+            </Separator.Background>
+            <Separator.RenderTransform>
+                <ScaleTransform ScaleY="5"/>
+            </Separator.RenderTransform>
+        </Separator>
+    </Window.Resources>
+    
+    <Border CornerRadius="10">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="160"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.RowSpan="2" Background="#272727"/>
+            <Border Grid.Column="1" Grid.RowSpan="2" Background="#373737"/>
+
+            <ListBox Grid.ColumnSpan="2" Background="Transparent" BorderThickness="0" MouseDown="OnMouseDownListBoxTitle"/>
+            <TextBlock Text="My Logger" FontSize="18" HorizontalAlignment="Center" Foreground="White"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Name="BtnMinimize" Content="ㅡ" Style="{StaticResource TitlebarButtonTheme}" Click="OnClick_BtnMinimalize"/>
+                <Button Name="BtnNormalize" Content="▣" Style="{StaticResource TitlebarButtonTheme}" Click="OnClick_BtnNormalize"/>
+                <Button Name="BtnMaximize" Content="ㅁ" Style="{StaticResource TitlebarButtonTheme}" Click="OnClick_BtnMaximize"/>
+                <Button Name="BtnClose" Content="X" Style="{StaticResource TitlebarButtonTheme}" Click="OnClick_BtnClose"/>
+            </StackPanel>
+
+            <Separator Template="{StaticResource Sperator}"/>
+            <Separator Grid.Column="1" VerticalAlignment="Bottom">
+                <Separator.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#171717" Offset="0.2"/>
+                        <GradientStop Color="#272727" Offset="0.5"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Separator.Background>
+                <Separator.RenderTransform>
+                    <ScaleTransform ScaleY="5"/>
+                </Separator.RenderTransform>
+            </Separator>
+        </Grid>
+    </Border>
+
+</Window>
