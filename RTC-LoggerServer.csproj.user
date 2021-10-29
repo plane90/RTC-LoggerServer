@@ -10,7 +10,7 @@
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Theme\TitlebarButtonTheme.xaml">
+    <Page Update="Styles\Styles.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
