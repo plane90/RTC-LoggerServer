@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RTC_LoggerServer"
+        xmlns:view="clr-namespace:RTC_LoggerServer.MVM.View"
+        xmlns:viewModel="clr-namespace:RTC_LoggerServer.MVM.ViewModel"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="920"
         WindowStyle="None"
@@ -11,22 +13,20 @@
         Background="Transparent"
         AllowsTransparency="True"
         StateChanged="OnWindowStateChanged">
-    
+
     <Window.Resources>
-        <Separator x:Key="Sperator" Grid.Column="1" VerticalAlignment="Bottom">
-            <Separator.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#171717" Offset="0.2"/>
-                    <GradientStop Color="#272727" Offset="0.5"/>
-                    <GradientStop Color="#00000000" Offset="1"/>
-                </LinearGradientBrush>
-            </Separator.Background>
-            <Separator.RenderTransform>
-                <ScaleTransform ScaleY="5"/>
-            </Separator.RenderTransform>
-        </Separator>
+        <DataTemplate DataType="{x:Type viewModel:LoggerViewModel}">
+            <view:LoggerView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModel:FrameViewModel}">
+            <view:FrameView/>
+        </DataTemplate>
     </Window.Resources>
-    
+
+    <Window.DataContext>
+        <viewModel:MainWindowViewModel/>
+    </Window.DataContext>
+
     <Border CornerRadius="10">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -50,9 +50,13 @@
             </StackPanel>
 
             <StackPanel Grid.Row="1">
-                <RadioButton Content="Log" Height="50" Style="{StaticResource MenuRadioButtonTheme}" IsChecked="True"/>
-                <RadioButton Content="Frame" Height="50" Style="{StaticResource MenuRadioButtonTheme}"/>
+                <RadioButton Content="Log" Height="50" Style="{StaticResource MenuRadioButtonTheme}" Command="{Binding LoggerViewCommand}" IsChecked="True"/>
+                <RadioButton Content="Frame" Height="50" Style="{StaticResource MenuRadioButtonTheme}" Command="{Binding FrameViewCommand}"/>
             </StackPanel>
+
+            <Border Grid.Row="1" Grid.Column="1">
+                <ContentControl Content="{Binding CurrentView}"/>
+            </Border>
 
             <Separator Style="{StaticResource UnderTitleSeparatorTheme}"/>
             <Separator Grid.Column="1" Style="{StaticResource UnderTitleSeparatorTheme}"/>

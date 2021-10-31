@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace RTC_LoggerServer
     /// </summary>
     public partial class MainWindow : Window
     {
+        public int MyProperty { get; set; }
         public MainWindow()
         {
             InitializeComponent();

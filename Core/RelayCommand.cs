@@ -14,12 +14,6 @@ namespace RTC_LoggerServer.Core
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public event Action<object> test
-        {
-            add { }
-            remove { }
-        }
-
         public bool CanExecute(object parameter)
         {
             return _canExecute == null || _canExecute(parameter);

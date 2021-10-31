@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace RTC_LoggerServer.Core
 {
-    class ObservableObject : INotifyPropertyChanged
+    abstract class ObservableObject : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
