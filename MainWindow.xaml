@@ -15,12 +15,7 @@
         StateChanged="OnWindowStateChanged">
 
     <Window.Resources>
-        <DataTemplate DataType="{x:Type viewModel:LoggerViewModel}">
-            <view:LoggerView/>
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type viewModel:FrameViewModel}">
-            <view:FrameView/>
-        </DataTemplate>
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
     </Window.Resources>
 
     <Window.DataContext>
@@ -54,12 +49,13 @@
                 <RadioButton Content="Frame" Height="50" Style="{StaticResource MenuRadioButtonTheme}" Command="{Binding FrameViewCommand}"/>
             </StackPanel>
 
-            <Border Grid.Row="1" Grid.Column="1">
-                <ContentControl Content="{Binding CurrentView}"/>
-            </Border>
+            <view:LoggerView Grid.Row="1" Grid.Column="1" DataContext="{Binding LoggerVM}"
+                             Visibility="{Binding IsLoggerVMVisible, Converter={StaticResource booleanToVisibilityConverter}}"/>
+            <view:FrameView Grid.Row="1" Grid.Column="1" DataContext="{Binding FrameVM}"
+                             Visibility="{Binding IsFrameVMViewVisible, Converter={StaticResource booleanToVisibilityConverter}}"/>
 
             <Separator Style="{StaticResource UnderTitleSeparatorTheme}"/>
-            <Separator Grid.Column="1" Style="{StaticResource UnderTitleSeparatorTheme}"/>
+            <Separator Grid.Column="1" Style="{StaticResource UnderTitlebarSeparatorTheme}"/>
         </Grid>
     </Border>
 

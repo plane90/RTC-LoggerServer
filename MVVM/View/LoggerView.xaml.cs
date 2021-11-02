@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,6 +22,7 @@ namespace RTC_LoggerServer.MVM.View
         public LoggerView()
         {
             InitializeComponent();
+            Trace.WriteLine($"LoggerView id: {this.GetHashCode()}");
         }
     }
 }

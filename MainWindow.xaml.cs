@@ -52,7 +52,6 @@ namespace RTC_LoggerServer
         {
             if (WindowState == WindowState.Maximized)
             {
-                // hidden 대신 collapsed를 사용하면 투명 공간을 남기지 않는다.
                 BtnMaximize.Visibility = Visibility.Collapsed;
                 BtnNormalize.Visibility = Visibility.Visible;
             }

@@ -44,6 +44,26 @@
                 </Setter.Value>
             </Setter>
         </Style.Setters>
+    </Style>    
+    
+    <Style x:Key="UnderTitlebarSeparatorTheme" TargetType="{x:Type Separator}">
+        <Style.Setters>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#272727" Offset="0.2"/>
+                        <GradientStop Color="#373737" Offset="0.5"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleY="5"/>
+                </Setter.Value>
+            </Setter>
+        </Style.Setters>
     </Style>
 
     <Style x:Key="TitlebarListBoxTheme" TargetType="{x:Type ListBox}">
