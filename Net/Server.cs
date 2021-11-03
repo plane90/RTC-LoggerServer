@@ -3,6 +3,8 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Text;
+using System;
 
 namespace RTC_LoggerServer.Net
 {
@@ -13,69 +15,49 @@ namespace RTC_LoggerServer.Net
 
         public static void RunServer()
         {
-            try
+            using Socket socket = new Socket(
+                AddressFamily.InterNetwork,
+                SocketType.Stream,
+                ProtocolType.Tcp);
+
+            IPEndPoint iep = new IPEndPoint(IPAddress.Any, 10004);
+
+            socket.Bind(iep);
+            socket.Listen(1000);
+
+            while (true)
             {
-                socket = new Socket(
-                    AddressFamily.InterNetwork,
-                    SocketType.Stream,
-                    ProtocolType.Tcp
-                    );
-
-                IPAddress addr = IPAddress.Any; // 0.0.0.0
-                IPEndPoint iep = new IPEndPoint(addr, 10040);   // 종단점(ip, port)
-
-                socket.Bind(iep); // ip, port 바인딩
-                socket.Listen(1000); // 백로그: 보류 중인 연결 큐의 길이
-
-                while (true)
+                Trace.WriteLine("Waiting Connection... \n");
+                var clientSock = socket.Accept();
+                Trace.WriteLine("Connected \n");
+                _ = Task.Run(() =>
                 {
-                    var connectedSocket = socket.Accept();   // Blocked at sock.Accept()
-                    _ = Task.Factory.StartNew(() =>
+                    try
                     {
-                        ReceivePacket(connectedSocket);
-                    });
-                }
-
-            }
-            catch (SocketException e)
-            {
-                Trace.WriteLine(e.Message);
-            }
-            finally
-            {
-                socket.Dispose();
+                        ReceivePacket(clientSock);
+                    }
+                    catch (Exception e)
+                    {
+                        Trace.WriteLine(e.Message);
+                    }
+                });
             }
         }
 
-        private static void ReceivePacket(Socket connectedSock)
+        private static void ReceivePacket(Socket clientSocket)
         {
-            try
+            byte[] packet = new byte[8 * 1024];
+            while (true)
             {
-                byte[] packet = new byte[8 * 1024];
-                IPEndPoint iep = connectedSock.RemoteEndPoint as IPEndPoint;
-                //Dispatcher.Invoke(() => LBClientIp.Text = $"{iep}");
-                while (true)
-                {
-                    connectedSock.Receive(packet);  // Blocked
-                    //Dispatcher.Invoke(() => TBLoggerWin.Text += $"Packet Received {packet.Length}\n");
-                    using MemoryStream ms = new MemoryStream(packet);
-                    using BinaryReader br = new BinaryReader(ms);
-                    //Dispatcher.Invoke(() => TBLoggerUnity.Text += $"{br.ReadString()}");
+                var length = clientSocket.Receive(packet);  // Blocked
+                using MemoryStream ms = new MemoryStream(packet);
+                using BinaryReader br = new BinaryReader(ms);
+                Trace.WriteLine($"\"{br.ReadString()}\" from Client IEP {clientSocket.RemoteEndPoint}, Packet Length: {length}");
 
-                    if (br.ReadString() == "exit")
-                    {
-                        socket.Dispose();
-                    }
+                if (br.ReadString() == "exit")
+                {
+                    clientSocket.Close();
                 }
-            }
-            catch (SocketException e)
-            {
-                Trace.WriteLine(e);
-            }
-            finally
-            {
-                Trace.WriteLine("close");
-                connectedSock.Close();
             }
         }
     }
