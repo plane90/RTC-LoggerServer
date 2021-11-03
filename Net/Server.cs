@@ -47,7 +47,7 @@ namespace RTC_LoggerServer.Net
         private static void ReceivePacket(Socket clientSocket)
         {
             byte[] packet = new byte[8 * 1024];
-            while (true)
+            while (clientSocket.Connected)
             {
                 var length = clientSocket.Receive(packet);  // Blocked
                 using MemoryStream ms = new MemoryStream(packet);
@@ -59,6 +59,7 @@ namespace RTC_LoggerServer.Net
                     clientSocket.Close();
                 }
             }
+            clientSocket.Close();
         }
     }
 }
