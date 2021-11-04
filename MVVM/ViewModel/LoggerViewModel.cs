@@ -32,8 +32,6 @@ namespace RTC_LoggerServer.MVM.ViewModel
         public LoggerViewModel()
         {
             _logs = new ObservableCollection<Net.Server.LogData>();
-            Logs.Add(new Net.Server.LogData() { Type = Net.Server.LogType.Log, Message = "a", DateTime = "100" });
-            Logs.Add(new Net.Server.LogData() { Type = Net.Server.LogType.Log, Message = "a", DateTime = "100" });
             Net.Server.OnLog += LogHandler;
         }
 
