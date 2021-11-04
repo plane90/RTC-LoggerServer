@@ -14,7 +14,7 @@ namespace RTC_LoggerServer
         {
             InitializeComponent();
             OnWindowStateChanged(this, EventArgs.Empty);
-            Net.Server.RunServer();
+            System.Threading.Tasks.Task.Run(() => Net.Server.RunServer());
         }
 
         private void OnMouseDownListBoxTitle(object sender, MouseButtonEventArgs e)

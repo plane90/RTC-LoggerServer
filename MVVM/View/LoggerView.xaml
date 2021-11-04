@@ -7,30 +7,30 @@
              xmlns:viewModel="clr-namespace:RTC_LoggerServer.MVM.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <Control.DataContext>
+        <viewModel:LoggerViewModel/>
+    </Control.DataContext>
     <StackPanel Margin="10">
-        <ListBox Background="Transparent" Foreground="White">
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal" HorizontalAlignment="Center"/>
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBoxItem>All</ListBoxItem>
-            <ListBoxItem>
-                <ToggleButton Style="{StaticResource LoggerViewToggleButtonTheme}" Content="Debug"/>
-            </ListBoxItem>
-            <ListBoxItem>
-                <ToggleButton HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Style="{StaticResource LoggerViewToggleButtonTheme}"  Content="Error"/>
-            </ListBoxItem>
-            <ListBoxItem>
-                <ToggleButton Style="{StaticResource LoggerViewToggleButtonTheme}" Content="Warning"/>
-            </ListBoxItem>
-            <ListBoxItem>
-                <TextBox Style="{StaticResource LoggerViewSearchTextboxTheme}"/>
-            </ListBoxItem>
-        </ListBox>
-        <ListBox Background="Transparent" Foreground="White" ItemsSource="{Binding Path=Logs}">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <ToggleButton>All</ToggleButton>
+            <ToggleButton>Debug</ToggleButton>
+            <ToggleButton>Error</ToggleButton>
+            <TextBox Style="{StaticResource LoggerViewSearchTextboxTheme}"/>
+        </StackPanel>
+        <ListBox Background="Transparent" Foreground="White" ItemsSource="{Binding Path=Logs, Mode=TwoWay, NotifyOnSourceUpdated=True, NotifyOnValidationError=True}" AlternationCount="2">
+            <ListBox.Resources>
+                <ResourceDictionary Source="/Styles/BandingColorListBoxItemTheme.xaml"/>
+            </ListBox.Resources>
             <ListBox.ItemTemplate>
                 <DataTemplate>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding DateTime}"/>
+                            <TextBlock Text="{Binding Type}" Margin="10,0,0,0"/>
+                            <TextBlock Text="{Binding Message}" Margin="10,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding StackTrace}"/>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

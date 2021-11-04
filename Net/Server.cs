@@ -5,13 +5,39 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Text;
 using System;
+using System.Windows.Threading;
+using System.Windows;
 
 namespace RTC_LoggerServer.Net
 {
 
+
     static class Server
     {
-        public static Socket socket;
+        public enum DataType
+        {
+            String = 0,
+            Binary = 1,
+            exit = 2,
+        }
+        public enum LogType
+        {
+            Error = 0,
+            Assert = 1,
+            Warning = 2,
+            Log = 3,
+            Exception = 4
+        }
+        public class LogData
+        {
+            public LogType Type { get; set; }
+            public string DateTime { get; set; }
+            public string Message { get; set; }
+            public string StackTrace { get; set; } = "";
+        }
+
+        public static event Action<LogData> OnLog;
+        public static event Action<LogData> OnFrame;
 
         public static void RunServer()
         {
@@ -29,18 +55,18 @@ namespace RTC_LoggerServer.Net
             {
                 Trace.WriteLine("Waiting Connection... \n");
                 var clientSock = socket.Accept();
-                Trace.WriteLine("Connected \n");
-                _ = Task.Run(() =>
+                //Trace.WriteLine("Connected \n");
+                //_ = Task.Run(() =>
+                //{
+                try
                 {
-                    try
-                    {
-                        ReceivePacket(clientSock);
-                    }
-                    catch (Exception e)
-                    {
-                        Trace.WriteLine(e.Message);
-                    }
-                });
+                    ReceivePacket(clientSock);
+                }
+                catch (Exception e)
+                {
+                    Trace.WriteLine(e.Message);
+                }
+                //});
             }
         }
 
@@ -49,17 +75,55 @@ namespace RTC_LoggerServer.Net
             byte[] packet = new byte[8 * 1024];
             while (clientSocket.Connected)
             {
-                var length = clientSocket.Receive(packet);  // Blocked
+                Trace.WriteLine($"Waiting Packet...");
+                clientSocket.Receive(packet);  // Blocked
                 using MemoryStream ms = new MemoryStream(packet);
                 using BinaryReader br = new BinaryReader(ms);
-                Trace.WriteLine($"\"{br.ReadString()}\" from Client IEP {clientSocket.RemoteEndPoint}, Packet Length: {length}");
-
-                if (br.ReadString() == "exit")
+                var dataType = GetDataType(br);
+                if (dataType == DataType.exit)
                 {
                     clientSocket.Close();
+                    break;
                 }
+                Application.Current.Dispatcher.Invoke(() => Delivery(br, dataType));
             }
-            clientSocket.Close();
+        }
+
+        private static DataType GetDataType(BinaryReader br)
+        {
+            var txt = br.ReadString();
+            if (txt == DataType.Binary.GetHashCode().ToString())
+            {
+                return DataType.Binary;
+            }
+            else if (txt == DataType.String.GetHashCode().ToString())
+            {
+                return DataType.String;
+            }
+            return DataType.exit;
+        }
+
+        private static void Delivery(BinaryReader br, DataType dataType)
+        {
+            switch (dataType)
+            {
+                case DataType.String:
+                    OnLog?.Invoke(GetLogData(br));
+                    break;
+                case DataType.Binary:
+                    break;
+            }
+        }
+
+        private static LogData GetLogData(BinaryReader br)
+        {
+            var logData = new LogData();
+            logData.Type = (LogType)int.Parse(br.ReadString());
+            logData.DateTime = br.ReadString();
+            logData.Message = br.ReadString();
+            logData.StackTrace = br.ReadString();
+            Trace.WriteLine($"Log: [{logData.DateTime}] \"{logData.Message}\"");
+            return logData;
         }
     }
 }

@@ -1,13 +1,23 @@
 ﻿using RTC_LoggerServer.Core;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace RTC_LoggerServer.MVM.ViewModel
 {
     class LoggerViewModel : ObservableObject
     {
-        private List<string> _logs = new List<string>() { "1", "2" };
-        public List<string> Logs { get => _logs; }
+        private ObservableCollection<Net.Server.LogData> _logs;
+        public ObservableCollection<Net.Server.LogData> Logs
+        {
+            get => _logs;
+            set
+            {
+                _logs = value;
+            }
+        }
+
         private bool _isLoggerVMVisible;
         public bool IsLoggerVMVisible
         {
@@ -21,7 +31,16 @@ namespace RTC_LoggerServer.MVM.ViewModel
 
         public LoggerViewModel()
         {
-            Trace.WriteLine($"LoggerViewModel id:{this.GetHashCode()}");
+            _logs = new ObservableCollection<Net.Server.LogData>();
+            Logs.Add(new Net.Server.LogData() { Type = Net.Server.LogType.Log, Message = "a", DateTime = "100" });
+            Logs.Add(new Net.Server.LogData() { Type = Net.Server.LogType.Log, Message = "a", DateTime = "100" });
+            Net.Server.OnLog += LogHandler;
+        }
+
+        private void LogHandler(Net.Server.LogData logData)
+        {
+            Trace.WriteLine($"logdata: {logData.DateTime}, {logData.Message}");
+            Logs.Add(logData);
         }
     }
 }
