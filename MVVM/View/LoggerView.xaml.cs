@@ -24,5 +24,12 @@ namespace RTC_LoggerServer.MVM.View
             InitializeComponent();
             Trace.WriteLine($"LoggerView id: {this.GetHashCode()}");
         }
+
+        private void OnScrolled_ScrollViewer(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer scv = (ScrollViewer)sender;
+            scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
+            e.Handled = true;
+        }
     }
 }

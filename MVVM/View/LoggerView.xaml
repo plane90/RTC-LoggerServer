@@ -10,29 +10,39 @@
     <Control.DataContext>
         <viewModel:LoggerViewModel/>
     </Control.DataContext>
-    <StackPanel Margin="10">
+    <Grid Margin="10">
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <ToggleButton>All</ToggleButton>
-            <ToggleButton>Debug</ToggleButton>
+            <ToggleButton>Log</ToggleButton>
             <ToggleButton>Error</ToggleButton>
+            <ToggleButton>Exception</ToggleButton>
             <TextBox Style="{StaticResource LoggerViewSearchTextboxTheme}"/>
         </StackPanel>
-        <ListBox Background="Transparent" Foreground="White" ItemsSource="{Binding Path=Logs, Mode=TwoWay, NotifyOnSourceUpdated=True, NotifyOnValidationError=True}" AlternationCount="2">
-            <ListBox.Resources>
-                <ResourceDictionary Source="/Styles/BandingColorListBoxItemTheme.xaml"/>
-            </ListBox.Resources>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding DateTime}"/>
-                            <TextBlock Text="{Binding Type}" Margin="10,0,0,0"/>
-                            <TextBlock Text="{Binding Message}" Margin="10,0,0,0"/>
+
+        <ScrollViewer Grid.Row="1" PreviewMouseWheel="OnScrolled_ScrollViewer">
+            <ListBox Name="ListLog" Background="Transparent" Foreground="White" ItemsSource="{Binding Path=Logs, Mode=TwoWay, NotifyOnSourceUpdated=True, NotifyOnValidationError=True}" AlternationCount="2">
+                <ListBox.Resources>
+                    <ResourceDictionary Source="/Styles/BandingColorListBoxItemTheme.xaml"/>
+                </ListBox.Resources>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding DateTime}"/>
+                                <TextBlock Text="{Binding Type}" Margin="10,0,0,0"/>
+                                <TextBlock Text="{Binding Message}" Margin="10,0,0,0"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding StackTrace}"/>
                         </StackPanel>
-                        <TextBlock Text="{Binding StackTrace}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-    </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </ScrollViewer>
+    </Grid>
 </UserControl>
