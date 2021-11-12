@@ -29,8 +29,11 @@ namespace RTC_LoggerServer.MVM.ViewModel
             }
         }
 
+        public RelayCommand ClearBtnCommand { get; set; }
+
         public LoggerViewModel()
         {
+            ClearBtnCommand = new RelayCommand(o => _logs.Clear());
             _logs = new ObservableCollection<Net.Server.LogData>();
             Net.Server.OnLog += LogHandler;
         }

@@ -37,7 +37,7 @@ namespace RTC_LoggerServer.Net
         }
 
         public static event Action<LogData> OnLog;
-        public static event Action<LogData> OnFrame;
+        public static event Action<byte[]> OnFrame;
 
         public static void RunServer()
         {
@@ -72,7 +72,7 @@ namespace RTC_LoggerServer.Net
 
         private static void ReceivePacket(Socket clientSocket)
         {
-            byte[] packet = new byte[8 * 1024];
+            byte[] packet = new byte[1000 * 1024];
             while (clientSocket.Connected)
             {
                 Trace.WriteLine($"Waiting Packet...");
@@ -80,12 +80,13 @@ namespace RTC_LoggerServer.Net
                 using MemoryStream ms = new MemoryStream(packet);
                 using BinaryReader br = new BinaryReader(ms);
                 var dataType = GetDataType(br);
+                Trace.WriteLine($"Received Packet type: {dataType}");
                 if (dataType == DataType.exit)
                 {
                     clientSocket.Close();
                     break;
                 }
-                Application.Current.Dispatcher.Invoke(() => Delivery(br, dataType));
+                Application.Current.Dispatcher.Invoke(() => Delivery(packet, br, dataType));
             }
         }
 
@@ -103,7 +104,7 @@ namespace RTC_LoggerServer.Net
             return DataType.exit;
         }
 
-        private static void Delivery(BinaryReader br, DataType dataType)
+        private static void Delivery(byte[] packet, BinaryReader br, DataType dataType)
         {
             switch (dataType)
             {
@@ -111,6 +112,7 @@ namespace RTC_LoggerServer.Net
                     OnLog?.Invoke(GetLogData(br));
                     break;
                 case DataType.Binary:
+                    OnFrame?.Invoke(packet);
                     break;
             }
         }

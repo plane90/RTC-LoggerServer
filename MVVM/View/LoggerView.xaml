@@ -23,6 +23,7 @@
             <ToggleButton>Error</ToggleButton>
             <ToggleButton>Exception</ToggleButton>
             <TextBox Style="{StaticResource LoggerViewSearchTextboxTheme}"/>
+            <Button Command="{Binding ClearBtnCommand}"> Clear </Button>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" PreviewMouseWheel="OnScrolled_ScrollViewer">
