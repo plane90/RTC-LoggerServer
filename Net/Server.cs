@@ -72,7 +72,7 @@ namespace RTC_LoggerServer.Net
 
         private static void ReceivePacket(Socket clientSocket)
         {
-            byte[] packet = new byte[1000 * 1024];
+            byte[] packet = new byte[1400 * 1024];
             while (clientSocket.Connected)
             {
                 Trace.WriteLine($"Waiting Packet...");
@@ -86,7 +86,7 @@ namespace RTC_LoggerServer.Net
                     clientSocket.Close();
                     break;
                 }
-                Application.Current.Dispatcher.Invoke(() => Delivery(packet, br, dataType));
+                Application.Current.Dispatcher.Invoke(() => Delivery(br, dataType));
             }
         }
 
@@ -104,7 +104,7 @@ namespace RTC_LoggerServer.Net
             return DataType.exit;
         }
 
-        private static void Delivery(byte[] packet, BinaryReader br, DataType dataType)
+        private static void Delivery(BinaryReader br, DataType dataType)
         {
             switch (dataType)
             {
@@ -112,7 +112,7 @@ namespace RTC_LoggerServer.Net
                     OnLog?.Invoke(GetLogData(br));
                     break;
                 case DataType.Binary:
-                    OnFrame?.Invoke(packet);
+                    OnFrame?.Invoke(GetEncodedFrame(br));
                     break;
             }
         }
@@ -126,6 +126,15 @@ namespace RTC_LoggerServer.Net
             logData.StackTrace = br.ReadString();
             Trace.WriteLine($"Log: [{logData.DateTime}] \"{logData.Message}\"");
             return logData;
+        }
+
+        private static byte[] GetEncodedFrame(BinaryReader br)
+        {
+            var length = int.Parse(br.ReadString());
+            byte[] encodedFrame = new byte[length];
+            br.Read(encodedFrame);
+
+            return encodedFrame;
         }
     }
 }
