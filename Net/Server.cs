@@ -19,6 +19,7 @@ namespace RTC_LoggerServer.Net
             String = 0,
             Binary = 1,
             exit = 2,
+            keep = 3,
         }
         public enum LogType
         {
@@ -72,7 +73,7 @@ namespace RTC_LoggerServer.Net
 
         private static void ReceivePacket(Socket clientSocket)
         {
-            byte[] packet = new byte[1400 * 1024];
+            byte[] packet = new byte[1500 * 1024];
             while (clientSocket.Connected)
             {
                 Trace.WriteLine($"Waiting Packet...");
@@ -85,6 +86,10 @@ namespace RTC_LoggerServer.Net
                 {
                     clientSocket.Close();
                     break;
+                }
+                if (dataType == DataType.keep)
+                {
+                    continue;
                 }
                 Application.Current.Dispatcher.Invoke(() => Delivery(br, dataType));
             }
@@ -101,7 +106,11 @@ namespace RTC_LoggerServer.Net
             {
                 return DataType.String;
             }
-            return DataType.exit;
+            else if (txt == DataType.exit.GetHashCode().ToString())
+            {
+                return DataType.exit;
+            }
+            return DataType.keep;
         }
 
         private static void Delivery(BinaryReader br, DataType dataType)
