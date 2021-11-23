@@ -12,7 +12,7 @@
     </Control.DataContext>
     <Grid Margin="10">
         <Canvas Background="#272727">
-            <Image Source="{Binding Frame}"/>
+            <Image Width="600" Height="420" Source="{Binding Frame}" />
         </Canvas>
     </Grid>
 </UserControl>

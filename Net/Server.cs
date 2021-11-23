@@ -65,7 +65,7 @@ namespace RTC_LoggerServer.Net
                 }
                 catch (Exception e)
                 {
-                    Trace.WriteLine(e.Message);
+                    Trace.WriteLine($"{e.Message}, {e.StackTrace}");
                 }
                 //});
             }
@@ -73,15 +73,27 @@ namespace RTC_LoggerServer.Net
 
         private static void ReceivePacket(Socket clientSocket)
         {
-            byte[] packet = new byte[1500 * 1024];
             while (clientSocket.Connected)
             {
                 Trace.WriteLine($"Waiting Packet...");
-                clientSocket.Receive(packet);  // Blocked
-                using MemoryStream ms = new MemoryStream(packet);
+
+                byte[] hPacket = Receive(clientSocket, 10);
+                using MemoryStream ms = new MemoryStream(hPacket);
                 using BinaryReader br = new BinaryReader(ms);
+
                 var dataType = GetDataType(br);
                 Trace.WriteLine($"Received Packet type: {dataType}");
+                if (dataType == DataType.String)
+                {
+                    byte[] cPacket = Receive(clientSocket, 8 * 1024);
+                    Application.Current.Dispatcher.Invoke(() => SendMessage(cPacket, dataType));
+                }
+                if (dataType == DataType.Binary)
+                {
+                    var length = int.Parse(br.ReadString());
+                    byte[] cPacket = Receive(clientSocket, length);
+                    Application.Current.Dispatcher.Invoke(() => SendMessage(cPacket, dataType));
+                }
                 if (dataType == DataType.exit)
                 {
                     clientSocket.Close();
@@ -91,8 +103,21 @@ namespace RTC_LoggerServer.Net
                 {
                     continue;
                 }
-                Application.Current.Dispatcher.Invoke(() => Delivery(br, dataType));
             }
+        }
+
+        private static byte[] Receive(Socket clientSocket, int length)
+        {
+            byte[] packet = new byte[length];
+            var received = 0;
+            while (received < length)
+            {
+                received += clientSocket.Receive(packet,
+                    received,
+                    length - received,
+                    SocketFlags.None);
+            }
+            return packet;
         }
 
         private static DataType GetDataType(BinaryReader br)
@@ -113,37 +138,38 @@ namespace RTC_LoggerServer.Net
             return DataType.keep;
         }
 
-        private static void Delivery(BinaryReader br, DataType dataType)
+        private static void SendMessage(byte[] packet, DataType dataType)
         {
             switch (dataType)
             {
                 case DataType.String:
-                    OnLog?.Invoke(GetLogData(br));
+                    OnLog?.Invoke(GetLogData(packet));
                     break;
                 case DataType.Binary:
-                    OnFrame?.Invoke(GetEncodedFrame(br));
+                    OnFrame?.Invoke(packet);
                     break;
             }
         }
 
-        private static LogData GetLogData(BinaryReader br)
+        private static LogData GetLogData(byte[] packet)
         {
+            using MemoryStream ms = new MemoryStream(packet);
+            using BinaryReader br = new BinaryReader(ms);
             var logData = new LogData();
             logData.Type = (LogType)int.Parse(br.ReadString());
             logData.DateTime = br.ReadString();
             logData.Message = br.ReadString();
             logData.StackTrace = br.ReadString();
-            Trace.WriteLine($"Log: [{logData.DateTime}] \"{logData.Message}\"");
             return logData;
         }
 
-        private static byte[] GetEncodedFrame(BinaryReader br)
-        {
-            var length = int.Parse(br.ReadString());
-            byte[] encodedFrame = new byte[length];
-            br.Read(encodedFrame);
+        //private static byte[] GetEncodedFrame(BinaryReader br)
+        //{
+        //    var length = int.Parse(br.ReadString());
+        //    byte[] encodedFrame = new byte[length];
+        //    br.Read(encodedFrame);
 
-            return encodedFrame;
-        }
+        //    return encodedFrame;
+        //}
     }
 }
