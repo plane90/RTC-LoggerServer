@@ -16,8 +16,8 @@ namespace RTC_LoggerServer.Net
     {
         public enum DataType
         {
-            String = 0,
-            Binary = 1,
+            Log = 0,
+            Frame = 1,
             exit = 2,
             keep = 3,
         }
@@ -39,6 +39,8 @@ namespace RTC_LoggerServer.Net
 
         public static event Action<LogData> OnLog;
         public static event Action<byte[]> OnFrame;
+        private const int HEADER_SIZE = 10;
+        private const int CONTENT_SIZE_LOG = 8 * 1024;
 
         public static void RunServer()
         {
@@ -77,18 +79,18 @@ namespace RTC_LoggerServer.Net
             {
                 Trace.WriteLine($"Waiting Packet...");
 
-                byte[] hPacket = Receive(clientSocket, 10);
+                byte[] hPacket = Receive(clientSocket, HEADER_SIZE);
                 using MemoryStream ms = new MemoryStream(hPacket);
                 using BinaryReader br = new BinaryReader(ms);
 
                 var dataType = GetDataType(br);
                 Trace.WriteLine($"Received Packet type: {dataType}");
-                if (dataType == DataType.String)
+                if (dataType == DataType.Log)
                 {
-                    byte[] cPacket = Receive(clientSocket, 8 * 1024);
+                    byte[] cPacket = Receive(clientSocket, CONTENT_SIZE_LOG);
                     Application.Current.Dispatcher.Invoke(() => SendMessage(cPacket, dataType));
                 }
-                if (dataType == DataType.Binary)
+                if (dataType == DataType.Frame)
                 {
                     var length = int.Parse(br.ReadString());
                     byte[] cPacket = Receive(clientSocket, length);
@@ -123,13 +125,13 @@ namespace RTC_LoggerServer.Net
         private static DataType GetDataType(BinaryReader br)
         {
             var txt = br.ReadString();
-            if (txt == DataType.Binary.GetHashCode().ToString())
+            if (txt == DataType.Frame.GetHashCode().ToString())
             {
-                return DataType.Binary;
+                return DataType.Frame;
             }
-            else if (txt == DataType.String.GetHashCode().ToString())
+            else if (txt == DataType.Log.GetHashCode().ToString())
             {
-                return DataType.String;
+                return DataType.Log;
             }
             else if (txt == DataType.exit.GetHashCode().ToString())
             {
@@ -142,10 +144,10 @@ namespace RTC_LoggerServer.Net
         {
             switch (dataType)
             {
-                case DataType.String:
+                case DataType.Log:
                     OnLog?.Invoke(GetLogData(packet));
                     break;
-                case DataType.Binary:
+                case DataType.Frame:
                     OnFrame?.Invoke(packet);
                     break;
             }

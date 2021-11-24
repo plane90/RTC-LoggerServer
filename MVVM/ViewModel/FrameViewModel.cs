@@ -15,18 +15,15 @@ namespace RTC_LoggerServer.MVM.ViewModel
         public bool IsFrameVMViewVisible
         {
             get => _isFrameVMViewVisible;
-            set
-            {
-                _isFrameVMViewVisible = value;
-                OnPropertyChanged();
-            }
+            set { _isFrameVMViewVisible = value; OnPropertyChanged(); }
         }
 
         private BitmapImage _frame;
-        public BitmapImage Frame { get => _frame; set { _frame = value; OnPropertyChanged(); } }
-
-        //private BitmapSource _frame;
-        //public BitmapSource Frame { get => _frame; set { _frame = value; } }
+        public BitmapImage Frame
+        {
+            get => _frame;
+            set { _frame = value; OnPropertyChanged(); }
+        }
 
         public FrameViewModel()
         {
@@ -43,7 +40,7 @@ namespace RTC_LoggerServer.MVM.ViewModel
             try
             {
                 Frame = LoadImage(encodedFrame);
-                Save(Frame, $"D:\\_Dev_WebRTC\\incoming\\frames_{frameCnt}.jpg");
+                //Save(Frame, $"D:\\_Dev_WebRTC\\incoming\\frames_{frameCnt}.jpg");
                 frameCnt++;
                 Trace.WriteLine($"thread ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
             }
@@ -56,7 +53,7 @@ namespace RTC_LoggerServer.MVM.ViewModel
         private BitmapImage LoadImage(byte[] imageData)
         {
             if (imageData == null || imageData.Length == 0) return null;
-            
+
 
             var image = new BitmapImage();
             using (var ms = new MemoryStream(imageData))
