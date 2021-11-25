@@ -119,6 +119,7 @@ namespace RTC_LoggerServer.Net
                     length - received,
                     SocketFlags.None);
             }
+            Trace.WriteLine($"Received All Packet");
             return packet;
         }
 

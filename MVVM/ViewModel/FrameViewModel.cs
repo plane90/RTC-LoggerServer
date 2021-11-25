@@ -42,7 +42,7 @@ namespace RTC_LoggerServer.MVM.ViewModel
                 Frame = LoadImage(encodedFrame);
                 //Save(Frame, $"D:\\_Dev_WebRTC\\incoming\\frames_{frameCnt}.jpg");
                 frameCnt++;
-                Trace.WriteLine($"thread ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+                //Trace.WriteLine($"thread ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
             }
             catch (System.Exception e)
             {
