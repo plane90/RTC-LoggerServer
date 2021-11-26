@@ -20,7 +20,7 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <ToggleButton>All</ToggleButton>
             <ToggleButton>Log</ToggleButton>
-            <ToggleButton>Error</ToggleButton>
+            <ToggleButton>Warning</ToggleButton>
             <ToggleButton>Exception</ToggleButton>
             <TextBox Style="{StaticResource LoggerViewSearchTextboxTheme}"/>
             <Button Command="{Binding ClearBtnCommand}"> Clear </Button>

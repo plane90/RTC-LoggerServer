@@ -84,17 +84,19 @@ namespace RTC_LoggerServer.Net
                 using BinaryReader br = new BinaryReader(ms);
 
                 var dataType = GetDataType(br);
-                Trace.WriteLine($"Received Packet type: {dataType}");
+                Trace.WriteLine($"Received Header Packet {DateTime.Now.ToString("mm:ss:fff")}");
                 if (dataType == DataType.Log)
                 {
                     byte[] cPacket = Receive(clientSocket, CONTENT_SIZE_LOG);
                     Application.Current.Dispatcher.Invoke(() => SendMessage(cPacket, dataType));
+                    Trace.WriteLine($"Received Log Packet {DateTime.Now.ToString("mm:ss:fff")}");
                 }
                 if (dataType == DataType.Frame)
                 {
                     var length = int.Parse(br.ReadString());
                     byte[] cPacket = Receive(clientSocket, length);
                     Application.Current.Dispatcher.Invoke(() => SendMessage(cPacket, dataType));
+                    Trace.WriteLine($"Received Frame Packet {DateTime.Now.ToString("mm:ss:fff")}");
                 }
                 if (dataType == DataType.exit)
                 {
@@ -119,7 +121,6 @@ namespace RTC_LoggerServer.Net
                     length - received,
                     SocketFlags.None);
             }
-            Trace.WriteLine($"Received All Packet");
             return packet;
         }
 

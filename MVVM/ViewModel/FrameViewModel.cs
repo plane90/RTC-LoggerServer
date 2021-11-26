@@ -1,5 +1,6 @@
 ﻿using RTC_LoggerServer.Core;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -11,12 +12,20 @@ namespace RTC_LoggerServer.MVM.ViewModel
     class FrameViewModel : ObservableObject
     {
         private int frameCnt = 0;
+        private int prevSec = 0;
+        public int FPS
+        {
+            get => frameCnt;
+            set { frameCnt = value; OnPropertyChanged(); }
+        }
         private bool _isFrameVMViewVisible;
         public bool IsFrameVMViewVisible
         {
             get => _isFrameVMViewVisible;
             set { _isFrameVMViewVisible = value; OnPropertyChanged(); }
         }
+
+        private Util.BufferScheduler bs;
 
         private BitmapImage _frame;
         public BitmapImage Frame
@@ -27,48 +36,51 @@ namespace RTC_LoggerServer.MVM.ViewModel
 
         public FrameViewModel()
         {
-            Net.Server.OnFrame += FrameHandler;
-            byte[] byteArrayIn = new byte[] { 255, 128, 0, 200 };
-            BitmapSource bitmapSource = BitmapSource.Create(2, 2, 300, 300, PixelFormats.Indexed8, BitmapPalettes.Gray256, byteArrayIn, 2);
-
+            Net.Server.OnFrame += OnFrameArrived;
+            //byte[] byteArrayIn = new byte[] { 255, 128, 0, 200 };
+            //BitmapSource bitmapSource = BitmapSource.Create(2, 2, 300, 300, PixelFormats.Indexed8, BitmapPalettes.Gray256, byteArrayIn, 2);
+            bs = new Util.BufferScheduler(OnBitmapReady);
             Trace.WriteLine($"thread ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
             //Frame = new BitmapImage(new Uri("D:\\_Dev_WebRTC\\제목 없음.jpg"));
         }
 
-        private void FrameHandler(byte[] encodedFrame)
+        private void OnFrameArrived(byte[] encodedFrame)
         {
             try
             {
-                Frame = LoadImage(encodedFrame);
+                bs?.AddIntoBuffer(encodedFrame);
+                CalcFPS();
+                //Frame = ConvertToBitmapImage(encodedFrame);
                 //Save(Frame, $"D:\\_Dev_WebRTC\\incoming\\frames_{frameCnt}.jpg");
-                frameCnt++;
                 //Trace.WriteLine($"thread ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Trace.WriteLine(e.Message);
             }
         }
 
-        private BitmapImage LoadImage(byte[] imageData)
+        private void CalcFPS()
         {
-            if (imageData == null || imageData.Length == 0) return null;
-
-
-            var image = new BitmapImage();
-            using (var ms = new MemoryStream(imageData))
+            if (prevSec == DateTime.Now.Second)
             {
-                image.BeginInit();
-                image.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.UriSource = null;
-                image.StreamSource = ms;
-                image.EndInit();
+                frameCnt++;
             }
-            image.Freeze();
-            return image;
+            else
+            {
+                Trace.WriteLine($"Frame Per Second: {frameCnt}");
+                prevSec = DateTime.Now.Second;
+                FPS = frameCnt;
+                frameCnt = 0;
+            }
         }
-        public void Save(BitmapImage image, string filePath)
+
+        private void OnBitmapReady(BitmapImage source)
+        {
+            Frame = source;
+        }
+
+        private void Save(BitmapImage image, string filePath)
         {
             BitmapEncoder encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(image));

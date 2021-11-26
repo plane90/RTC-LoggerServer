@@ -13,6 +13,8 @@
     <Grid Margin="10">
         <Canvas Background="#272727">
             <Image MaxWidth="640" MaxHeight="480" Source="{Binding Frame}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock FontSize="40" Foreground="White" Text="{Binding FPS}" Canvas.Left="640" Canvas.Top="500"/>
+            <TextBlock FontSize="40" Foreground="White" Text="fps:" Canvas.Left="540" Canvas.Top="500"/>
         </Canvas>
     </Grid>
 </UserControl>
